@@ -5,16 +5,34 @@ var Q = Quintus()
         
 Q.Sprite.extend("Player",{
   init: function(p) {
-    this._super(p, { sheet: "player", x: 410, y: -50 });
+    this._super(p, { sheet: "player", x: 410, y: -50, speed: 50 });
     this.add('2d');
-    
+        
     this.on("hit.sprite",function(collision) {
       if(collision.obj.isA("Tower")) {
         Q.stageScene("endGame",1, { label: "You Won!" }); 
         this.destroy();
       }
     });
-  }
+    
+    this.on("step",this,"step");
+  },
+  sayHi: function() {
+      console.log('hi');
+  },
+    step: function(dt) {
+        var p = this.p;
+        
+        if(Q.inputs['left']) {
+            p.vx = -p.speed;
+            p.direction = 'left';
+        } else if(Q.inputs['right']) {
+            p.direction = 'right';
+            p.vx = p.speed;
+        } else {
+            p.vx = 0;
+        }
+    }
 });
 
 Q.Sprite.extend("Tower", {
