@@ -1,12 +1,12 @@
 var Q = Quintus()
         .include("Sprites, Scenes, Input, 2D, Touch, UI")
         .setup({ maximize: true })
-        .controls().touch()
+        .controls()
         
 Q.Sprite.extend("Player",{
   init: function(p) {
-    this._super(p, { sheet: "player", x: 410, y: 90 });
-    this.add('2d, platformerControls');
+    this._super(p, { sheet: "player", x: 410, y: -50 });
+    this.add('2d');
     
     this.on("hit.sprite",function(collision) {
       if(collision.obj.isA("Tower")) {
@@ -23,7 +23,7 @@ Q.Sprite.extend("Tower", {
   }
 });
 
-Q.Sprite.extend("Enemy",{
+var Enemy = Q.Sprite.extend("Enemy",{
   init: function(p) {
     this._super(p, { sheet: 'enemy', vx: 100 });
     this.add('2d, aiBounce');
@@ -44,16 +44,28 @@ Q.Sprite.extend("Enemy",{
   }
 });
 
+Q.Enemy.extend("Twilio", {
+    init: function(p) {
+        this._super(p, { sheet: 'twilio'})
+    }
+})
+
 Q.scene("level1",function(stage) {
   stage.collisionLayer(new Q.TileLayer({ dataAsset: 'level.json', sheet: 'tiles' }));
   var player = stage.insert(new Q.Player());
   
   stage.add("viewport").follow(player);
   
-  stage.insert(new Q.Enemy({ x: 700, y: 0 }));
-  stage.insert(new Q.Enemy({ x: 800, y: 0 }));
+  i = 0;
+  while( i < 5) {
+      stage.insert(new Q.Enemy({ x: (600 + Math.floor((Math.random()*20)+1)*25), y: 0, vx:(Math.floor((Math.random()*10)+10)*10) }));
+      i++;
+  }
   
-  stage.insert(new Q.Tower({ x: 180, y: 50 }));
+  stage.insert(new Q.Twilio({ x: 200, vx: 100, y: 10}));
+  
+  
+  stage.insert(new Q.Tower({ x: 200, y: 0 }));
 });
 
 Q.scene('endGame',function(stage) {
