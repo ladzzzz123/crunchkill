@@ -236,7 +236,7 @@ Q.scene("level1",function(stage) {
   stage.insert(new Q.Round({scene:'level2', x:180, y:47}));
   // stage.insert(new Q.Round({scene:'level3', x:500, y:200}));
   
-  Q.state.set({ valuation: 10000, cash: 20000, burndown: 5 })
+  Q.state.set({ valuation: 10000, cash: 10000, burndown: 5 })
   
 });
 
