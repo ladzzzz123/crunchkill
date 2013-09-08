@@ -42,7 +42,7 @@ Q.UI.Text.extend("Valuation",{
   },
   
   valuation: function(valuation) {
-      this.p.label = "Equity: $" + valuation;
+      this.p.label = "Equity: $" + Math.floor(valuation);
       
       if(valuation > 1000000000) {
             Q.stageScene("endGame",1,{label: "Congratulations, you can IPO."});
@@ -73,7 +73,7 @@ Q.UI.Text.extend("Cash",{
     },
 
   cash: function(cash) {
-      this.p.label = "Cash: $" + cash;
+      this.p.label = "Cash: $" + Math.floor(cash);
       
       if(cash < 1) {
           Q.stageScene("endGame",1,{label: "You ran out of money! Better luck next time."});
@@ -93,19 +93,17 @@ Q.Sprite.extend("Startup",{
     this._super(p, Q._defaults(p,{ sheet: 'enemy', vx: 100 }));
     this.add('2d, aiBounce');
     
-    this.on("bump.left,bump.right,bump.bottom,bump.top",function(collision) {
+    this.on("bump.left,bump.right,bump.bottom",function(collision) {
       if(collision.obj.isA("Player")) {
           
-          if(Q.state.get("valuation") < this.p.valuation) {
+          if(Q.state.get("valuation")*10000 < this.p.valuation ) {
               Q.stageScene("endGame",1,{label: "They bought you out! Is this winning?"});
-          } else {
+              this.destroy();
+          } else if(Q.state.get("cash") > this.p.valuation) {
               Q.state.dec("cash",this.p.valuation);
               Q.state.inc("valuation",this.p.valuation);
+              this.destroy();
           }
-          
-          
-          // collision.obj.p.speed = collision.obj.p.speed - (this.p.valuation / 100000);
-          this.destroy();
       }
     });
     
@@ -119,28 +117,42 @@ Q.Sprite.extend("Startup",{
 
 Q.Startup.extend("Twilio", {
     init: function(p) {
-        p = Q._defaults(p, {sheet: 'twilio', valuation: 50});
+        p = Q._defaults(p, {sheet: 'twilio', vx: 200, valuation: 20000000});
         this._super(p);
     }
 });
 
 Q.Startup.extend("Venmo", {
     init: function(p) {
-        p = Q._defaults(p, {sheet: 'venmo', valuation: 5000});
+        p = Q._defaults(p, {sheet: 'venmo', vx: 200, valuation: 200000000});
         this._super(p);
     }
 });
 
 Q.Startup.extend("Facebook", {
     init: function(p) {
-        p = Q._defaults(p, {sheet: 'venmo', valuation: 50000000000});
+        p = Q._defaults(p, {sheet: 'facebook', valuation: 50000000000});
         this._super(p);
     }
 });
 
 Q.Startup.extend("Google", {
     init: function(p) {
-        p = Q._defaults(p, {sheet: 'venmo', valuation: 600000000000});
+        p = Q._defaults(p, {sheet: 'google', valuation: 600000000000});
+        this._super(p);
+    }
+});
+
+Q.Startup.extend("Microsoft", {
+    init: function(p) {
+        p = Q._defaults(p, {sheet: 'microsoft', vx: 80, valuation: 600000000000});
+        this._super(p);
+    }
+});
+
+Q.Startup.extend("Apple", {
+    init: function(p) {
+        p = Q._defaults(p, {sheet: 'apple', valuation: 600000000000});
         this._super(p);
     }
 });
@@ -151,6 +163,7 @@ Q.Sprite.extend("VC",{
     
     this.on("hit.sprite",function(collision) {
       if(collision.obj.isA("Player")) { 
+          Q.state.set("burndown", Math.floor(this.p.cash / 5000));
           Q.state.dec("valuation", Q.state.get("valuation") * this.p.equity);
           Q.state.inc("cash",this.p.cash);
           this.destroy();
@@ -161,26 +174,45 @@ Q.Sprite.extend("VC",{
 
 Q.VC.extend("YC",{
   init: function(p) {
-      p = Q._defaults(p, {sheet: 'twilio', cash: 17000, equity: 0.07});
+      p = Q._defaults(p, {sheet: 'yc', cash: 17000, equity: 0.07});
       this._super(p);
   }
 });
 
 Q.VC.extend("TechStars",{
   init: function(p) {
-      p = Q._defaults(p, {sheet: 'twilio', cash: 18000, equity: 0.05});
+      p = Q._defaults(p, {sheet: '500s', cash: 18000, equity: 0.05});
+      this._super(p);
+  }
+});
+
+Q.VC.extend("USV",{
+  init: function(p) {
+      p = Q._defaults(p, {sheet: 'usv', cash: 90000000, equity: 0.15});
       this._super(p);
   }
 });
 
 Q.Sprite.extend("Round",{
   init: function(p) {
-    this._super(p, Q._defaults(p,{ sheet: 'twilio' }));
+    this._super(p, Q._defaults(p,{ sheet: 'tower' }));
     
     this.on("hit.sprite",function(collision) {
       if(collision.obj.isA("Player")) { 
           Q.stageScene(this.p.scene);
       }
+    });
+  }
+});
+
+Q.Round.extend("Ender",{
+  init: function(p) {
+    this._super(p, Q._defaults(p,{}));
+    
+    this.on("hit.sprite",function(collision) {
+      if(collision.obj.isA("Player")) { 
+          Q.stageScene("endGame",1,{label: "Congratulations, you can IPO."});
+        }
     });
   }
 });
@@ -200,10 +232,11 @@ Q.scene("level1",function(stage) {
   stage.insert(cash = new Q.Cash());
     
   stage.insert(new Q.YC({ x: 820, y: 78}));
-  // stage.insert(new Q.Venmo({ x: 600, vx: 100, y: 10}));
-  stage.insert(new Q.Round({scene:'level2', x:500, y:200}));
+  stage.insert(new Q.Venmo({ x: 900, vx: 50, y: 78}));
+  stage.insert(new Q.Round({scene:'level2', x:180, y:47}));
+  // stage.insert(new Q.Round({scene:'level3', x:500, y:200}));
   
-  Q.state.set({ valuation: 10000, cash: 100000000, burndown: 5 })
+  Q.state.set({ valuation: 10000, cash: 20000, burndown: 5 })
   
 });
 
@@ -225,8 +258,37 @@ Q.scene("level2",function(stage) {
   stage.insert(new Q.Google({ x: 600, vx: 100, y: 10}));
   stage.insert(new Q.Facebook({ x: 800, vx: 100, y: 10}));
   
+  stage.insert(new Q.Round({scene:'level3', x:1070, y:178}));
+  
   Q.state.inc("valuation",1);
   Q.state.dec("valuation",1);
+  
+});
+
+Q.scene("level3",function(stage) {
+  stage.collisionLayer(new Q.TileLayer({ dataAsset: 'level3.json', sheet: 'tiles' }));
+  
+  stage.insert(player);
+  player.p.x = 140;
+  player.p.y = 0;
+  
+  Q.unpauseGame();
+  
+  stage.add("viewport").follow(player);
+  
+  stage.insert(new Q.Valuation());
+  stage.insert(new Q.Cash());
+
+
+  stage.insert(new Q.Twilio({ x: 430, y: 15}));
+  stage.insert(new Q.USV({ x: 525, y: 15}));
+  stage.insert(new Q.Microsoft({ x: 790, y: 10}));
+  stage.insert(new Q.Apple({ x: 800, vx: 150, y: 10}));
+  
+  Q.state.inc("valuation",1);
+  Q.state.dec("valuation",1);
+  
+  stage.insert(new Q.Ender({x:1070, y:178}));
   
 });
 
@@ -249,7 +311,7 @@ Q.scene('endGame',function(stage) {
   box.fit(20);
 });
 
-Q.load("sprites.png, sprites.json, level.json, level2.json, tiles.png", function() {
+Q.load("sprites.png, sprites.json, level.json, level2.json, level3.json, tiles.png", function() {
   Q.sheet("tiles","tiles.png", { tilew: 32, tileh: 32 });
   Q.compileSheets("sprites.png","sprites.json");
   Q.stageScene("level1");

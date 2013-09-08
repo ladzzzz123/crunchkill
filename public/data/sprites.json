@@ -38,6 +38,69 @@
     "tileh":30,
     "frames":1
   },
+  
+  "yc": {  
+    "sx":0,
+    "sy":144,
+    "cols":1,
+    "tilew":30,
+    "tileh":30,
+    "frames":1
+  },
+  
+  "facebook": {  
+    "sx":0,
+    "sy":174,
+    "cols":1,
+    "tilew":30,
+    "tileh":30,
+    "frames":1
+  },
+  
+  "google": {  
+    "sx":0,
+    "sy":204,
+    "cols":1,
+    "tilew":30,
+    "tileh":30,
+    "frames":1
+  },
+  
+  "microsoft": {  
+    "sx":0,
+    "sy":232,
+    "cols":1,
+    "tilew":30,
+    "tileh":30,
+    "frames":1
+  },
+  
+  "apple": {  
+    "sx":0,
+    "sy":260,
+    "cols":1,
+    "tilew":30,
+    "tileh":30,
+    "frames":1
+  },
+    
+    "500s": {  
+      "sx":0,
+      "sy":290,
+      "cols":1,
+      "tilew":30,
+      "tileh":30,
+      "frames":1
+    },
+    
+    "usv": {  
+      "sx":0,
+      "sy":320,
+      "cols":1,
+      "tilew":30,
+      "tileh":30,
+      "frames":1
+    },
     
     "tower":
     {
